@@ -22,9 +22,9 @@ impl Server {
     self.routes.insert(path, handler);
   }
 
-  fn handle_stream(&self, mut stream: &TcpStream) {
+  fn handle_stream(&self, stream: &mut TcpStream) {
     log::debug!("Accepted Connection");
-    let request = Request::new(&stream);
+    let request = Request::new(stream);
     if request.aborted {
       log::debug!("Aborted Request");
       stream.flush().unwrap();
@@ -42,8 +42,8 @@ impl Server {
     log::debug!("Listening at: {}", address);
     for stream in listener.incoming() {
       match stream {
-        Ok(stream) => {
-          self.handle_stream(&stream)
+        Ok(mut stream) => {
+          self.handle_stream(&mut stream)
         }
         Err(_e) => {
           log::debug!("Connection Failed")
